@@ -2,7 +2,7 @@ import UIKit
 
 final class MovieQuizViewController: UIViewController {
     
-    struct QuizQuestion {
+    private struct QuizQuestion {
         let image: String
         let text : String
         let correctAnswer: Bool
@@ -52,6 +52,7 @@ final class MovieQuizViewController: UIViewController {
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
     
+    private var buttonsBlocked = false
     
     
     @IBOutlet private weak var imageView: UIImageView!
@@ -62,24 +63,22 @@ final class MovieQuizViewController: UIViewController {
     
     
     @IBAction private func noButton(_ sender: UIButton) {
+        if buttonsBlocked { return }
         let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = false
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
     }
     
     
     @IBAction private func yesButton(_ sender: UIButton) {
+        if buttonsBlocked { return }
         let currentQuestion = questions[currentQuestionIndex]
-        let givenAnswer = true
-        
-        showAnswerResult(isCorrect: givenAnswer == currentQuestion.correctAnswer)
+        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
         
     }
     
     
     
-    struct QuizStepViewModel {
+    private struct QuizStepViewModel {
         let image: UIImage
         let question: String
         let questionNumber: String
@@ -118,7 +117,7 @@ final class MovieQuizViewController: UIViewController {
     }
     
     
-    struct QuizResultsViewModel {
+    private struct QuizResultsViewModel {
         let title: String
         let text: String
         let buttonText: String
@@ -140,11 +139,12 @@ final class MovieQuizViewController: UIViewController {
         
         alert.addAction(action)
         
-        self.present(alert, animated: true, completion: nil)
+        present(alert, animated: true, completion: nil)
     }
     
     
     private func showAnswerResult(isCorrect: Bool) {
+        buttonsBlocked = true
         if isCorrect {
             correctAnswers += 1 // 2
         }
@@ -157,6 +157,8 @@ final class MovieQuizViewController: UIViewController {
         imageView.layer.cornerRadius = 20
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.imageView.layer.borderWidth = 0
+            self.buttonsBlocked = false
             self.showNextQuestionOrResults()
         }
         
