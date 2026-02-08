@@ -114,10 +114,15 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="f6N-UF-mr3">
+                                <rect key="frame" x="197" y="438" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="ypBlack"/>
                         <constraints>
+                            <constraint firstItem="f6N-UF-mr3" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="JDJ-Xy-wkb"/>
+                            <constraint firstItem="f6N-UF-mr3" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Jqa-ka-Fen"/>
                             <constraint firstItem="2mr-JT-enO" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="KaX-sd-8At"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="2mr-JT-enO" secondAttribute="bottom" id="P4s-9d-kXV"/>
                             <constraint firstItem="2mr-JT-enO" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="guI-SW-jlq"/>
@@ -125,6 +130,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="activityIndicator" destination="f6N-UF-mr3" id="ehp-JK-Lzk"/>
                         <outlet property="counterLabel" destination="EYt-Hq-zPk" id="m0Q-8D-MZn"/>
                         <outlet property="imageView" destination="KUf-Fj-y9I" id="BEd-W3-cl9"/>
                         <outlet property="textLabel" destination="vjv-H9-3CG" id="u3D-BD-4kD"/>
