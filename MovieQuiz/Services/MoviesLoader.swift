@@ -6,7 +6,13 @@ protocol MoviesLoading {
 }
 
 struct MoviesLoader: MoviesLoading {
-    private let networkClient = NetworkClient()
+    
+    private let networkClient: NetworkRouting
+    private let decoder = JSONDecoder()
+    
+    init(networkClient: NetworkRouting = NetworkClient()) {
+        self.networkClient = networkClient
+    }
     
     private var mostPopularMoviesUrl: URL {
         
@@ -21,8 +27,16 @@ struct MoviesLoader: MoviesLoading {
             switch result {
             case .success(let data):
                 do {
-                    let mostPopularMovies = try JSONDecoder().decode(MostPopularMovies.self, from: data)
-                    handler(.success(mostPopularMovies))
+                    
+                    let mostPopularMovies = try decoder.decode(MostPopularMovies.self, from: data)
+                    
+                    if !mostPopularMovies.errorMessage.isEmpty {
+                        
+                        let error = NSError(domain: "IMDb API Error", code: 0, userInfo: [NSLocalizedDescriptionKey: mostPopularMovies.errorMessage])
+                        handler(.failure(error))
+                    } else {
+                        handler(.success(mostPopularMovies))
+                    }
                 } catch {
                     handler(.failure(error))
                 }
