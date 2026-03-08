@@ -1,9 +1,3 @@
-//
-//  StatisticService.swift
-//  MovieQuiz
-//
-//  Created by Leo Gabuev on 08.01.2026.
-//
 
 import Foundation
 final class StatisticService: StatisticServiceProtocol {
@@ -31,59 +25,54 @@ final class StatisticService: StatisticServiceProtocol {
     var bestGame: GameResult {
         get {
             
-        let correct = storage.integer(forKey: Keys.bestGameCorrect.rawValue)
-        let total = storage.integer(forKey: Keys.bestGameTotal.rawValue)
-        let date = storage.object(forKey: Keys.bestGameDate.rawValue) as? Date ?? Date()
+            let correct = storage.integer(forKey: Keys.bestGameCorrect.rawValue)
+            let total = storage.integer(forKey: Keys.bestGameTotal.rawValue)
+            let date = storage.object(forKey: Keys.bestGameDate.rawValue) as? Date ?? Date()
             
-        return GameResult(correct: correct, total: total, date: date)
+            return GameResult(correct: correct, total: total, date: date)
         }set{
-        storage.set(newValue.correct, forKey: Keys.bestGameCorrect.rawValue)
-        storage.set(newValue.total, forKey: Keys.bestGameTotal.rawValue)
-        storage.set(newValue.date, forKey: Keys.bestGameDate.rawValue)
+            storage.set(newValue.correct, forKey: Keys.bestGameCorrect.rawValue)
+            storage.set(newValue.total, forKey: Keys.bestGameTotal.rawValue)
+            storage.set(newValue.date, forKey: Keys.bestGameDate.rawValue)
         }
     }
     private var totalCorrectAnswers: Int {
-            get {
-                storage.integer(forKey: Keys.totalCorrectAnswers.rawValue)
-            }
-            set {
-                storage.set(newValue, forKey: Keys.totalCorrectAnswers.rawValue)
-            }
+        get {
+            storage.integer(forKey: Keys.totalCorrectAnswers.rawValue)
         }
-
+        set {
+            storage.set(newValue, forKey: Keys.totalCorrectAnswers.rawValue)
+        }
+    }
+    
     private var totalQuestionsAsked: Int {
-            get {
-                storage.integer(forKey: Keys.totalQuestionsAsked.rawValue)
-            }
-            set {
-                storage.set(newValue, forKey: Keys.totalQuestionsAsked.rawValue)
-            }
+        get {
+            storage.integer(forKey: Keys.totalQuestionsAsked.rawValue)
         }
+        set {
+            storage.set(newValue, forKey: Keys.totalQuestionsAsked.rawValue)
+        }
+    }
+    
     var totalAccuracy: Double {
         get {
-         
-        guard totalQuestionsAsked > 0 else {
-        return 0.0
+            guard totalQuestionsAsked > 0 else {
+                return 0.0
+            }
+            let accuracy = Double(totalCorrectAnswers) / Double(totalQuestionsAsked) * 100
+            
+            return accuracy
         }
-                    
-                    
-        
-                    
-                    
-        let accuracy = Double(totalCorrectAnswers) / Double(totalQuestionsAsked) * 100
-                    
-        return accuracy
-                }
     }
     
     func store(correct count: Int, total amount: Int) {
-            gamesCount += 1
-            totalCorrectAnswers += count
-            totalQuestionsAsked += amount
-            let currentGame = GameResult(correct: count, total: amount, date: Date())
+        gamesCount += 1
+        totalCorrectAnswers += count
+        totalQuestionsAsked += amount
+        let currentGame = GameResult(correct: count, total: amount, date: Date())
         if currentGame.isBetterThan(bestGame) {
-                bestGame = currentGame
-            }
+            bestGame = currentGame
+        }
         
     }
     
