@@ -10,23 +10,23 @@ final class MovieQuizViewControllerMock: MovieQuizViewControllerProtocol {
     }
     
     func show(quiz result: QuizResultsViewModel) {
-    
+        //
     }
     
     func highlightImageBorder(isCorrectAnswer: Bool) {
-    
+        //
     }
     
     func showLoadingIndicator() {
-    
+        //
     }
     
     func hideLoadingIndicator() {
-    
+        //
     }
     
     func showNetworkError(message: String) {
-    
+        //
     }
 }
 
@@ -36,7 +36,7 @@ final class MovieQuizPresenterTests: XCTestCase {
         let sut = MovieQuizPresenter(viewController: viewControllerMock)
         
         let emptyData = Data()
-        let question = QuizQuestion(image: emptyData, text: "Question Text", correctAnswer: true)
+        let question = QuizQuestion(imageData: emptyData, text: "Question Text", correctAnswer: true)
         let viewModel = sut.convert(model: question)
         
         XCTAssertEqual(viewModel.image, emptyData)

@@ -13,25 +13,30 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private weak var viewController: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private let statisticService: StatisticServiceProtocol? = StatisticService()
-    var lastStepModel: QuizStepViewModel?
-    
+    private var lastStepModel: QuizStepViewModel?
     
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
-        
         
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
         questionFactory?.loadData()
         viewController.showLoadingIndicator()
     }
     
-    
+    private enum Constants {
+        static let resultsTitle = "Этот раунд окончен!"
+        static let playAgainButtonText = "Сыграть ещё раз"
+        static let statsErrorMessage = "Ошибка загрузки статистики"
+        static let noRecordMessage = "Рекорд: ещё не установлен"
+        static let resultLabel = "Ваш результат: "
+        static let gamesCountLabel = "Количество сыгранных квизов: "
+        static let averageAccuracyLabel = "Средняя точность: "
+        static let recordLabel = "Рекорд: "
+    }
     
     // MARK: - Private Methods
     
-    
-    
-     func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel (
             image: model.imageData,
             question: model.text,
@@ -40,34 +45,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         return questionStep
     }
     
-    private func isLastQuestion() -> Bool {
-        currentQuestionIndex == questionsAmount - 1
-    }
-    
-    private func switchToNextQuestion() {
-        currentQuestionIndex += 1
-    }
-    
-    func resetQuestionIndex() {
-        currentQuestionIndex = 0
-    }
-    
     func yesButtonClicked() {
         didAnswer(isYes: true)
     }
     
     func noButtonClicked() {
         didAnswer(isYes: false)
-    }
-    
-    private func didAnswer(isYes: Bool) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        
-        let isCorrect = currentQuestion.correctAnswer == isYes
-        
-        proceedWithAnswer(isCorrect: isCorrect)
     }
     
     func didLoadDataFromServer() {
@@ -83,7 +66,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func didReceiveNextQuestion(question: QuizQuestion?) {
         
-        guard let question = question else {
+        guard let question else {
             return
         }
         
@@ -94,24 +77,44 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
-    
-    
-    func didAnswer(isCorrectAnswer: Bool) {
-        if isCorrectAnswer {
-            correctAnswers += 1
-        }
-    }
-    
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
         questionFactory?.requestNextQuestion()
     }
     
-    func makeResultsMessage() -> String {
+    private func isLastQuestion() -> Bool {
+        currentQuestionIndex == questionsAmount - 1
+    }
+    
+    private func switchToNextQuestion() {
+        currentQuestionIndex += 1
+    }
+    
+    private func resetQuestionIndex() {
+        currentQuestionIndex = 0
+    }
+    
+    private func didAnswer(isYes: Bool) {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        
+        let isCorrect = currentQuestion.correctAnswer == isYes
+        
+        proceedWithAnswer(isCorrect: isCorrect)
+    }
+    
+    private func didAnswer(isCorrectAnswer: Bool) {
+        if isCorrectAnswer {
+            correctAnswers += 1
+        }
+    }
+    
+    private func makeResultsMessage() -> String {
         statisticService?.store(correct: correctAnswers, total: questionsAmount)
         guard let statisticService = statisticService else {
-            return "Ошибка загрузки статистики"
+            return Constants.statsErrorMessage
         }
         let bestGame = statisticService.bestGame
         let gamesCount = statisticService.gamesCount
@@ -121,34 +124,32 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         
         if bestGame.total == 0 {
-            recordLine = "Рекорд: ещё не установлен"
+            recordLine = Constants.noRecordMessage
         } else {
             let bestGameDate = bestGame.date.dateTimeString
-            recordLine = "Рекорд: \(bestGame.correct)/\(bestGame.total) (\(bestGameDate))"
+            recordLine = "\(Constants.recordLabel)\(bestGame.correct)/\(bestGame.total) (\(bestGameDate))"
         }
         
         
         return """
-            Ваш результат: \(correctAnswers)/\(questionsAmount)
+            \(Constants.resultLabel)\(correctAnswers)/\(questionsAmount)
             
-            Количество сыгранных квизов: \(gamesCount)
+            \(Constants.gamesCountLabel)\(gamesCount)
             \(recordLine)
-            Средняя точность: \(String(format: "%.2f", accuracy))%
+            \(Constants.averageAccuracyLabel)\(String(format: "%.2f", accuracy))%
             """
     }
     
-    func proceedWithAnswer(isCorrect: Bool) {
+    private func proceedWithAnswer(isCorrect: Bool) {
         didAnswer(isCorrectAnswer: isCorrect)
         
         viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
-        
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             self.proceedToNextQuestionOrResults()
         }
     }
-
     
     private func proceedToNextQuestionOrResults() {
         if self.isLastQuestion() {
@@ -156,9 +157,9 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             let text = makeResultsMessage()
             
             let viewModel = QuizResultsViewModel(
-                title: "Этот раунд окончен!",
+                title: Constants.resultsTitle,
                 text: text,
-                buttonText: "Сыграть ещё раз")
+                buttonText: Constants.playAgainButtonText)
             viewController?.show(quiz: viewModel)
         } else {
             
@@ -166,9 +167,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
         }
     }
-    
-    
-    
 }
 
 
