@@ -55,14 +55,7 @@ final class StatisticService: StatisticServiceProtocol {
     }
     
     var totalAccuracy: Double {
-        get {
-            guard totalQuestionsAsked > 0 else {
-                return 0.0
-            }
-            let accuracy = Double(totalCorrectAnswers) / Double(totalQuestionsAsked) * 100
-            
-            return accuracy
-        }
+        totalQuestionsAsked > 0 ? 0.0 : Double(totalCorrectAnswers) / Double(totalQuestionsAsked) * 100
     }
     
     func store(correct count: Int, total amount: Int) {
